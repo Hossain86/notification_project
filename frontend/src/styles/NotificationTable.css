@@ -1,0 +1,76 @@
+.notification-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.notification-table-container h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 0.5rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.notification-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.notification-table thead {
+  background-color: #34495e;
+  color: white;
+  position: sticky;
+  top: 0;
+}
+
+.notification-table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.notification-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s;
+}
+
+.notification-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.notification-table tbody tr.unread {
+  background-color: #fff3cd;
+}
+
+.notification-table tbody tr.read {
+  opacity: 0.8;
+}
+
+.notification-table td {
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  color: #2c3e50;
+}
+
+.table-loading,
+.no-data {
+  text-align: center;
+  padding: 3rem;
+  color: #7f8c8d;
+  font-size: 1.1rem;
+}
+
+.no-data {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}

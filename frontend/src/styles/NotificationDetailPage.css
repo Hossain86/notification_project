@@ -1,0 +1,31 @@
+.detail-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.content-split {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+.panel-section {
+  flex: 0 0 350px;
+}
+
+.table-section {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .content-split {
+    flex-direction: column;
+  }
+  
+  .panel-section {
+    flex: 1 1 auto;
+  }
+}
