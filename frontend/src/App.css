@@ -47,6 +47,22 @@
   background-color: #c0392b;
 }
 
+.profile-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.profile-button:hover {
+  background-color: #2980b9;
+}
+
 .header-logo {
   height: 50px;
   width: auto;

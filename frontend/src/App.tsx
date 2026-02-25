@@ -5,6 +5,7 @@ import { HomePage } from './pages/HomePage';
 import { NotificationDetailPage } from './pages/NotificationDetailPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { ProfilePage } from './pages/ProfilePage';
 import './App.css';
 
 function App() {
@@ -19,6 +20,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <HomePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
               </ProtectedRoute>
             } 
           />

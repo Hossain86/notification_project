@@ -4,6 +4,7 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from django.db import models
 from .models import NotificationCategory, Notification
 
 
@@ -58,7 +59,13 @@ COLUMN_DEFINITIONS = {
 
 @api_view(['GET'])
 def get_categories(request):
-    categories = NotificationCategory.objects.all()
+    # Get categories for the logged-in user and global categories (user=None)
+    if request.user.is_authenticated:
+        categories = NotificationCategory.objects.filter(
+            models.Q(user=request.user) | models.Q(user__isnull=True)
+        )
+    else:
+        categories = NotificationCategory.objects.filter(user__isnull=True)
     serializer = CategorySerializer(categories, many=True)
     return Response(serializer.data)
 
@@ -66,8 +73,27 @@ def get_categories(request):
 @api_view(['GET'])
 def get_notifications(request, category_name):
     try:
-        category = NotificationCategory.objects.get(name=category_name)
-        notifications = Notification.objects.filter(category=category)
+        # Get category for user or global
+        if request.user.is_authenticated:
+            category = NotificationCategory.objects.filter(
+                models.Q(user=request.user) | models.Q(user__isnull=True),
+                name=category_name
+            ).first()
+        else:
+            category = NotificationCategory.objects.filter(user__isnull=True, name=category_name).first()
+        
+        if not category:
+            return Response({'error': 'Category not found'}, status=404)
+            
+        # Get notifications for this category and user
+        if request.user.is_authenticated:
+            notifications = Notification.objects.filter(
+                category=category
+            ).filter(
+                models.Q(user=request.user) | models.Q(user__isnull=True)
+            )
+        else:
+            notifications = Notification.objects.filter(category=category, user__isnull=True)
         serializer = NotificationSerializer(notifications, many=True)
         
         # Get column definitions for this category
@@ -78,8 +104,8 @@ def get_notifications(request, category_name):
             'columns': columns,
             'notifications': serializer.data
         })
-    except NotificationCategory.DoesNotExist:
-        return Response({'error': 'Category not found'}, status=404)
+    except Exception as e:
+        return Response({'error': str(e)}, status=404)
 
 
 # ============ AUTHENTICATION VIEWS ============
@@ -150,3 +176,115 @@ def check_auth(request):
         })
     else:
         return Response({'authenticated': False})
+
+
+# ============ USER PROFILE VIEWS ============
+
+@api_view(['POST'])
+@csrf_exempt
+def create_category(request):
+    """Create a new notification category"""
+    if not request.user.is_authenticated:
+        return Response({'error': 'Authentication required'}, status=401)
+    
+    name = request.data.get('name')
+    
+    if not name:
+        return Response({'error': 'Category name is required'}, status=400)
+    
+    # Check if category already exists for this user
+    if NotificationCategory.objects.filter(user=request.user, name=name).exists():
+        return Response({'error': 'Category already exists'}, status=400)
+    
+    try:
+        category = NotificationCategory.objects.create(
+            name=name,
+            user=request.user
+        )
+        return Response({
+            'message': 'Category created successfully',
+            'category': {'id': category.id, 'name': category.name}
+        }, status=201)
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
+
+
+@api_view(['POST'])
+@csrf_exempt
+def create_notification(request):
+    """Create a new notification"""
+    if not request.user.is_authenticated:
+        return Response({'error': 'Authentication required'}, status=401)
+    
+    category_id = request.data.get('category_id')
+    data = request.data.get('data')
+    
+    if not category_id or not data:
+        return Response({'error': 'Category ID and data are required'}, status=400)
+    
+    try:
+        # Check if category belongs to user or is global
+        category = NotificationCategory.objects.filter(
+            models.Q(user=request.user) | models.Q(user__isnull=True),
+            id=category_id
+        ).first()
+        
+        if not category:
+            return Response({'error': 'Category not found'}, status=404)
+        
+        notification = Notification.objects.create(
+            category=category,
+            user=request.user,
+            data=data,
+            is_read=False
+        )
+        
+        serializer = NotificationSerializer(notification)
+        return Response({
+            'message': 'Notification created successfully',
+            'notification': serializer.data
+        }, status=201)
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
+
+
+@api_view(['GET'])
+def get_user_categories(request):
+    """Get all categories for the logged-in user"""
+    if not request.user.is_authenticated:
+        return Response({'error': 'Authentication required'}, status=401)
+    
+    categories = NotificationCategory.objects.filter(user=request.user)
+    serializer = CategorySerializer(categories, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+@csrf_exempt
+def delete_category(request, category_id):
+    """Delete a category (only if it belongs to the user)"""
+    if not request.user.is_authenticated:
+        return Response({'error': 'Authentication required'}, status=401)
+    
+    try:
+        category = NotificationCategory.objects.get(id=category_id, user=request.user)
+        category.delete()
+        return Response({'message': 'Category deleted successfully'})
+    except NotificationCategory.DoesNotExist:
+        return Response({'error': 'Category not found or you do not have permission'}, status=404)
+
+
+@api_view(['DELETE'])
+@csrf_exempt
+def delete_notification(request, notification_id):
+    """Delete a notification (only if it belongs to the user)"""
+    if not request.user.is_authenticated:
+        return Response({'error': 'Authentication required'}, status=401)
+    
+    try:
+        notification = Notification.objects.get(id=notification_id, user=request.user)
+        notification.delete()
+        return Response({'message': 'Notification deleted successfully'})
+    except Notification.DoesNotExist:
+        return Response({'error': 'Notification not found or you do not have permission'}, status=404)
+

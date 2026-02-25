@@ -54,6 +54,7 @@ export const NotificationDetailPage = () => {
           <h1>Notification Management System</h1>
         </div>
         <div className="header-actions">
+          <button onClick={() => navigate('/profile')} className="profile-button">Profile</button>
           <span className="user-info">Welcome, {user?.username}</span>
           <button onClick={handleLogout} className="logout-button">Logout</button>
         </div>

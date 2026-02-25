@@ -71,4 +71,45 @@ export const getNotifications = async (categoryName: string): Promise<Notificati
   return response.data;
 };
 
+// Profile/User API calls
+export const getUserCategories = async () => {
+  const response = await axios.get(`${API_BASE_URL}/profile/categories/`);
+  return response.data;
+};
+
+export const createCategory = async (name: string) => {
+  const csrfToken = getCookie('csrftoken');
+  const response = await axios.post(`${API_BASE_URL}/profile/categories/create/`,
+    { name },
+    { headers: csrfToken ? { 'X-CSRFToken': csrfToken } : {} }
+  );
+  return response.data;
+};
+
+export const deleteCategory = async (categoryId: number) => {
+  const csrfToken = getCookie('csrftoken');
+  const response = await axios.delete(`${API_BASE_URL}/profile/categories/${categoryId}/delete/`,
+    { headers: csrfToken ? { 'X-CSRFToken': csrfToken } : {} }
+  );
+  return response.data;
+};
+
+export const createNotification = async (categoryId: number, data: Record<string, any>) => {
+  const csrfToken = getCookie('csrftoken');
+  const response = await axios.post(`${API_BASE_URL}/profile/notifications/create/`,
+    { category_id: categoryId, data },
+    { headers: csrfToken ? { 'X-CSRFToken': csrfToken } : {} }
+  );
+  return response.data;
+};
+
+export const deleteNotification = async (notificationId: number) => {
+  const csrfToken = getCookie('csrftoken');
+  const response = await axios.delete(`${API_BASE_URL}/profile/notifications/${notificationId}/delete/`,
+    { headers: csrfToken ? { 'X-CSRFToken': csrfToken } : {} }
+  );
+  return response.data;
+};
+
+
 
