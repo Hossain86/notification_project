@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import serializers
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from .models import NotificationCategory, Notification
 
 
@@ -132,6 +132,7 @@ def login_user(request):
 
 
 @api_view(['POST'])
+@csrf_exempt
 def logout_user(request):
     """Logout user"""
     logout(request)
@@ -139,8 +140,9 @@ def logout_user(request):
 
 
 @api_view(['GET'])
+@ensure_csrf_cookie
 def check_auth(request):
-    """Check if user is authenticated"""
+    """Check if user is authenticated and ensure CSRF cookie is set"""
     if request.user.is_authenticated:
         return Response({
             'authenticated': True,

@@ -49,11 +49,13 @@ export const NotificationDetailPage = () => {
   return (
     <div className="detail-page">
       <header className="app-header">
-        <h1>Notification Management System</h1>
+        <div className="header-left">
+          <img src="/walton.webp" alt="Walton Logo" className="header-logo" />
+          <h1>Notification Management System</h1>
+        </div>
         <div className="header-actions">
           <span className="user-info">Welcome, {user?.username}</span>
           <button onClick={handleLogout} className="logout-button">Logout</button>
-          <img src="/walton.webp" alt="Walton Logo" className="header-logo" />
         </div>
       </header>
       {error && <div className="error-message">{error}</div>}

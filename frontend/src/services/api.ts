@@ -5,20 +5,53 @@ const API_BASE_URL = '/api';
 
 // Configure axios to send cookies with requests
 axios.defaults.withCredentials = true;
+axios.defaults.xsrfCookieName = 'csrftoken';
+axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+
+// Get CSRF token from cookie
+function getCookie(name: string): string | null {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+  return null;
+}
+
+// Get CSRF token endpoint
+export const getCSRFToken = async () => {
+  try {
+    await axios.get(`${API_BASE_URL}/auth/check/`);
+    return getCookie('csrftoken');
+  } catch (error) {
+    console.error('Failed to get CSRF token:', error);
+    return null;
+  }
+};
 
 // Authentication API calls
 export const login = async (username: string, password: string) => {
-  const response = await axios.post(`${API_BASE_URL}/auth/login/`, { username, password });
+  const csrfToken = getCookie('csrftoken');
+  const response = await axios.post(`${API_BASE_URL}/auth/login/`, 
+    { username, password },
+    { headers: csrfToken ? { 'X-CSRFToken': csrfToken } : {} }
+  );
   return response.data;
 };
 
 export const register = async (username: string, password: string, email?: string) => {
-  const response = await axios.post(`${API_BASE_URL}/auth/register/`, { username, password, email });
+  const csrfToken = getCookie('csrftoken');
+  const response = await axios.post(`${API_BASE_URL}/auth/register/`, 
+    { username, password, email },
+    { headers: csrfToken ? { 'X-CSRFToken': csrfToken } : {} }
+  );
   return response.data;
 };
 
 export const logout = async () => {
-  const response = await axios.post(`${API_BASE_URL}/auth/logout/`);
+  const csrfToken = getCookie('csrftoken');
+  const response = await axios.post(`${API_BASE_URL}/auth/logout/`,
+    {},
+    { headers: csrfToken ? { 'X-CSRFToken': csrfToken } : {} }
+  );
   return response.data;
 };
 
@@ -37,4 +70,5 @@ export const getNotifications = async (categoryName: string): Promise<Notificati
   const response = await axios.get(`${API_BASE_URL}/notifications/${encodeURIComponent(categoryName)}/`);
   return response.data;
 };
+
 

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { register } from '../services/api';
+import { register, getCSRFToken } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import '../styles/AuthPage.css';
 
@@ -13,6 +13,11 @@ export const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { setUser } = useAuth();
+
+  useEffect(() => {
+    // Get CSRF token when component mounts
+    getCSRFToken();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
