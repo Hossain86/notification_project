@@ -1,6 +1,9 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import serializers
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 from .models import NotificationCategory, Notification
 
 
@@ -77,3 +80,71 @@ def get_notifications(request, category_name):
         })
     except NotificationCategory.DoesNotExist:
         return Response({'error': 'Category not found'}, status=404)
+
+
+# ============ AUTHENTICATION VIEWS ============
+
+@api_view(['POST'])
+@csrf_exempt
+def register_user(request):
+    """Register a new user"""
+    username = request.data.get('username')
+    password = request.data.get('password')
+    email = request.data.get('email', '')
+    
+    if not username or not password:
+        return Response({'error': 'Username and password are required'}, status=400)
+    
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Username already exists'}, status=400)
+    
+    try:
+        user = User.objects.create_user(username=username, password=password, email=email)
+        login(request, user)
+        return Response({
+            'message': 'User registered successfully',
+            'user': {'id': user.id, 'username': user.username, 'email': user.email}
+        }, status=201)
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
+
+
+@api_view(['POST'])
+@csrf_exempt
+def login_user(request):
+    """Login user"""
+    username = request.data.get('username')
+    password = request.data.get('password')
+    
+    if not username or not password:
+        return Response({'error': 'Username and password are required'}, status=400)
+    
+    user = authenticate(request, username=username, password=password)
+    
+    if user is not None:
+        login(request, user)
+        return Response({
+            'message': 'Login successful',
+            'user': {'id': user.id, 'username': user.username, 'email': user.email}
+        })
+    else:
+        return Response({'error': 'Invalid credentials'}, status=401)
+
+
+@api_view(['POST'])
+def logout_user(request):
+    """Logout user"""
+    logout(request)
+    return Response({'message': 'Logout successful'})
+
+
+@api_view(['GET'])
+def check_auth(request):
+    """Check if user is authenticated"""
+    if request.user.is_authenticated:
+        return Response({
+            'authenticated': True,
+            'user': {'id': request.user.id, 'username': request.user.username, 'email': request.user.email}
+        })
+    else:
+        return Response({'authenticated': False})

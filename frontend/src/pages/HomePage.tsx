@@ -1,13 +1,22 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { NotificationPanel } from '../components/NotificationPanel';
 import { NotificationCategory } from '../types/notifications';
 import { getCategories } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import '../styles/HomePage.css';
 
 export const HomePage = () => {
   const [categories, setCategories] = useState<NotificationCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -31,6 +40,11 @@ export const HomePage = () => {
     <div className="home-page">
       <header className="app-header">
         <h1>Notification Management System</h1>
+        <div className="header-actions">
+          <span className="user-info">Welcome, {user?.username}</span>
+          <button onClick={handleLogout} className="logout-button">Logout</button>
+          <img src="/walton.webp" alt="Walton Logo" className="header-logo" />
+        </div>
       </header>
       {error && <div className="error-message">{error}</div>}
       <div className="content-full">

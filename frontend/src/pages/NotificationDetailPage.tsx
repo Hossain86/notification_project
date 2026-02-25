@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { NotificationPanel } from '../components/NotificationPanel';
 import { NotificationTable } from '../components/NotificationTable';
 import { NotificationCategory, Notification } from '../types/notifications';
 import { getCategories, getNotifications } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import '../styles/NotificationDetailPage.css';
 
 export const NotificationDetailPage = () => {
@@ -13,6 +14,13 @@ export const NotificationDetailPage = () => {
   const [columns, setColumns] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,6 +50,11 @@ export const NotificationDetailPage = () => {
     <div className="detail-page">
       <header className="app-header">
         <h1>Notification Management System</h1>
+        <div className="header-actions">
+          <span className="user-info">Welcome, {user?.username}</span>
+          <button onClick={handleLogout} className="logout-button">Logout</button>
+          <img src="/walton.webp" alt="Walton Logo" className="header-logo" />
+        </div>
       </header>
       {error && <div className="error-message">{error}</div>}
       <div className="content-split">
