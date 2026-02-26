@@ -17,7 +17,15 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'pending']
 
     def get_pending(self, obj):
-        return obj.notifications.filter(is_read=False).count()
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            # Count all notifications for this category that belong to the user or are global
+            return obj.notifications.filter(
+                models.Q(user=request.user) | models.Q(user__isnull=True)
+            ).count()
+        else:
+            # Count all global notifications (user=None)
+            return obj.notifications.filter(user__isnull=True).count()
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -66,7 +74,7 @@ def get_categories(request):
         )
     else:
         categories = NotificationCategory.objects.filter(user__isnull=True)
-    serializer = CategorySerializer(categories, many=True)
+    serializer = CategorySerializer(categories, many=True, context={'request': request})
     return Response(serializer.data)
 
 

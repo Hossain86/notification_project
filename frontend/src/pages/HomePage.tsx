@@ -39,12 +39,11 @@ export const HomePage = () => {
   return (
     <div className="home-page">
       <header className="app-header">
-        <div className="header-left">
+        <div className="header-left" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
           <img src="/walton.webp" alt="Walton Logo" className="header-logo" />
           <h1>Notification Management System</h1>
         </div>
         <div className="header-actions">
-          <button onClick={() => navigate('/profile')} className="profile-button">Profile</button>
           <span className="user-info">Welcome, {user?.username}</span>
           <button onClick={handleLogout} className="logout-button">Logout</button>
         </div>
