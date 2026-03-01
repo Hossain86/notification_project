@@ -71,6 +71,29 @@ export const getNotifications = async (categoryName: string): Promise<Notificati
   return response.data;
 };
 
+export const getNotificationSummary = async () => {
+  const response = await axios.get(`${API_BASE_URL}/notifications/summary/`);
+  return response.data;
+};
+
+export const markNotificationAsRead = async (notificationId: number) => {
+  const csrfToken = getCookie('csrftoken');
+  const response = await axios.post(`${API_BASE_URL}/notifications/${notificationId}/mark-read/`,
+    {},
+    { headers: csrfToken ? { 'X-CSRFToken': csrfToken } : {} }
+  );
+  return response.data;
+};
+
+export const markAllNotificationsAsRead = async () => {
+  const csrfToken = getCookie('csrftoken');
+  const response = await axios.post(`${API_BASE_URL}/notifications/mark-all-read/`,
+    {},
+    { headers: csrfToken ? { 'X-CSRFToken': csrfToken } : {} }
+  );
+  return response.data;
+};
+
 // Profile/User API calls
 export const getUserCategories = async () => {
   const response = await axios.get(`${API_BASE_URL}/profile/categories/`);

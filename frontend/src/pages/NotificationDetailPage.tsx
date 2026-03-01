@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { NotificationPanel } from '../components/NotificationPanel';
 import { NotificationTable } from '../components/NotificationTable';
+import { NotificationIcon } from '../components/NotificationIcon';
+import { NavigationMenu } from '../components/NavigationMenu';
 import { NotificationCategory, Notification } from '../types/notifications';
 import { getCategories, getNotifications } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -54,12 +56,14 @@ export const NotificationDetailPage = () => {
           <h1>Notification Management System</h1>
         </div>
         <div className="header-actions">
+          <NotificationIcon />
           <span className="user-info">Welcome, {user?.username}</span>
           <button onClick={handleLogout} className="logout-button">Logout</button>
         </div>
       </header>
       {error && <div className="error-message">{error}</div>}
       <div className="content-split">
+        <NavigationMenu />
         <div className="panel-section">
           <NotificationPanel categories={categories} loading={loading} />
         </div>

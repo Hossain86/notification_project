@@ -1,0 +1,232 @@
+.notification-icon-container {
+  position: relative;
+}
+
+.notification-icon-btn {
+  position: relative;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.notification-icon-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.notification-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #e74c3c;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  border: 2px solid #2c3e50;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: 380px;
+  max-height: 500px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notification-dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.notification-dropdown-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #2c3e50;
+}
+
+.header-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.notification-count-badge {
+  background-color: #3498db;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+}
+
+.mark-all-read-btn {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.mark-all-read-btn:hover {
+  background-color: #27ae60;
+}
+
+.notification-dropdown-content {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  gap: 0.75rem;
+}
+
+.notification-item:hover {
+  background-color: #f8f9fa;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.notification-category {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #3498db;
+  background-color: #e8f4f8;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+}
+
+.notification-time {
+  font-size: 0.75rem;
+  color: #95a5a6;
+}
+
+.notification-text {
+  font-size: 0.9rem;
+  color: #2c3e50;
+  line-height: 1.4;
+}
+
+.notification-text strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.notification-details {
+  color: #7f8c8d;
+  font-weight: normal;
+}
+
+.mark-read-btn {
+  flex-shrink: 0;
+  background-color: #ecf0f1;
+  color: #34495e;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.mark-read-btn:hover {
+  background-color: #3498db;
+  color: white;
+  transform: scale(1.1);
+}
+
+.notification-empty {
+  padding: 3rem 1.25rem;
+  text-align: center;
+}
+
+.notification-empty p {
+  margin: 0;
+  color: #95a5a6;
+  font-size: 0.95rem;
+}
+
+/* Scrollbar styling */
+.notification-dropdown-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-dropdown-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.notification-dropdown-content::-webkit-scrollbar-thumb {
+  background: #bdc3c7;
+  border-radius: 10px;
+}
+
+.notification-dropdown-content::-webkit-scrollbar-thumb:hover {
+  background: #95a5a6;
+}
+
+@media (max-width: 480px) {
+  .notification-dropdown {
+    width: 320px;
+    right: -50px;
+  }
+}

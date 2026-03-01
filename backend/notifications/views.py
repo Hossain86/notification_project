@@ -38,31 +38,32 @@ class NotificationSerializer(serializers.ModelSerializer):
 
 # ============ COLUMN DEFINITIONS ============
 # Column definitions for each notification type
+# "Details" is a special column that shows an expand button in the UI
 COLUMN_DEFINITIONS = {
-    "Others Notification": ["HRMS", "EBS"],
-    "EHS Notification": ["Code", "Details", "Cost Center", "Type", "For Date", "Create Date"],
-    "Global Approval Forwarded by Me": ["SL", "Code", "Priority", "Subject", "Insert By", "Department", "Create Date", "Forwarded To", "Forward Duration"],
-    "Global Approval Notification": ["SL", "Code", "Priority", "Subject", "Insert By", "Department", "Approval Deadline", "Waiting Duration"],
-    "Heavy Vehicle Notification": ["SL", "Code", "Details", "Name(ID)", "Section", "Department", "Required Date"],
-    "Utility and Plumbing Notification": ["Code", "Details", "Product", "Department", "Section", "Create Date"],
-    "Global Approval Forward Notification": ["SL", "Code", "Priority", "Subject", "Insert By", "Department", "Forward By", "Approval Deadline", "Waiting Duration"],
-    "Workshop Notification": ["Code", "Details", "Product", "Department", "Section", "For Date", "Create Date"],
-    "Electrical Notification": ["Code", "Details", "Cost Center", "Location", "Description", "Create Date"],
-    "HVAC Notification": ["Code", "Details", "Cost Center", "Location", "Description", "Create Date"],
-    "Paint Notification": ["Code", "Details", "Cost Center", "Description", "For Department", "Create Date"],
-    "Wastage Notification": ["Code", "Details", "Wastage Type", "Wastage Category", "Insert by", "Department", "Create Date"],
-    "Wastage Forward Notification": ["Code", "Details", "Wastage Type", "Wastage Category", "Insert by", "Department", "Create Date"],
-    "Comp & PCB Notification": ["Code", "Details", "Cost Center", "Description", "Create Date"],
-    "Carpenter Notification": ["Code", "Details", "Cost Center", "Description", "For Department", "Create Date"],
-    "Permit to Work Notification": ["Code", "Details", "Work Title", "Work Place", "Insert By", "Create Date"],
-    "Carpenter Forward Notification": ["Code", "Details", "Cost Center", "Description", "For Department", "Create Date"],
-    "Gift Notification": ["Code", "Details", "Receiver Name", "Reference By", "Create Date"],
-    "Software Req. Notification": ["SL", "Code", "Details", "Development Team", "Request Type", "Task Title", "For Department", "Create Date"],
-    "Policy Approval Notification": ["SL", "Code", "Details", "Doc. Title", "Insert By", "Department", "Create Date"],
-    "ESM Automation Notification": ["Code", "Details", "Cost Center", "Description", "For Department", "Create Date"],
-    "Machine Making Req. Notification": ["Code", "Details", "Legal Entity", "Product", "Cost Center", "Create Date", "Approval For"],
-    "Service Center Forward Notification": ["SL", "Code", "Details", "Name(ID)", "Department", "Section", "Date"],
-    "Service Center Notification": ["SL", "Code", "Details", "Name(ID)", "Department", "Section", "Date"],
+    "Others Notification": ["Details", "HRMS", "EBS"],
+    "EHS Notification": ["Details", "Code", "Product", "Department", "Section", "For (Year & Date)", "Create Date"],
+    "Global Approval Forwarded by Me": ["Details", "SL", "Code", "Priority", "Subject", "Inserted By", "Department", "Create Date", "Forwarded To", "Forward Duration"],
+    "Global Approval Notification": ["Details", "SL", "Code", "Priority", "Subject", "Insert By", "Department", "Approval Deadline", "Waiting Duration"],
+    "Heavy Vehicle Notification": ["Details", "SL", "Code", "Name (ID)", "Section", "Department", "Required Date"],
+    "Utility and Plumbing Notification": ["Details", "Code", "Product", "Department", "Section", "Create Date"],
+    "Global Approval Forward Notification": ["Details", "SL", "Code", "Priority", "Subject", "Insert By", "Department", "Forward By", "Approval Deadline", "Waiting Duration"],
+    "Workshop Notification": ["Details", "Code", "Product", "Department", "Section", "For Date", "Create Date"],
+    "Electrical Notification": ["Details", "Code", "Cost Center", "Location", "Description", "Create Date"],
+    "HVAC Notification": ["Details", "Code", "Cost Center", "Location", "Description", "Create Date"],
+    "Paint Notification": ["Details", "Code", "Cost Center", "Description", "For Department", "Create Date"],
+    "Wastage Notification": ["Details", "Code", "Wastage Type", "Wastage Category", "Insert by", "Department", "Create Date"],
+    "Wastage Forward Notification": ["Details", "Code", "Wastage Type", "Wastage Category", "Insert by", "Department", "Create Date"],
+    "Comp & PCB Notification": ["Details", "Code", "Cost Center", "Description", "Create Date"],
+    "Carpenter Notification": ["Details", "Code", "Cost Center", "Description", "For Department", "Create Date"],
+    "Permit to Work Notification": ["Details", "Code", "Work Title", "Work Place", "Insert by", "Create Date"],
+    "Carpenter Forward Notification": ["Details", "Code", "Cost Center", "Description", "For Department", "Create Date"],
+    "Gift Notification": ["Details", "Code", "Receiver Name", "Reference By", "Create Date"],
+    "Software Req. Notification": ["Details", "SL", "Code", "Development Team", "Request Type", "Task Title", "For Department", "Create Date"],
+    "Policy Approval Notification": ["Details", "SL", "Code", "Doc. Title", "Insert By", "Department", "Create Date"],
+    "ESM Automation Notification": ["Details", "Code", "Cost Center", "Description", "For Department", "Create Date"],
+    "Machine Making Req. Notification": ["Details", "Code", "Legal Entity", "Product", "Cost Center", "Create Date", "Approval For"],
+    "Service Center Forward Notification": ["Details", "SL", "Code", "Name(ID)", "Department", "Section", "Date"],
+    "Service Center Notification": ["Details", "SL", "Code", "Name(ID)", "Department", "Section", "Date"],
 }
 
 @api_view(['GET'])
@@ -114,6 +115,131 @@ def get_notifications(request, category_name):
         })
     except Exception as e:
         return Response({'error': str(e)}, status=404)
+
+
+@api_view(['GET'])
+def get_notification_summary(request):
+    """Get summary of recent unread notifications for the notification icon"""
+    try:
+        # Get all unread notifications for user or global (last 7 days)
+        from datetime import timedelta
+        from django.utils import timezone
+        
+        # Calculate the timestamp for 7 days ago
+        time_threshold = timezone.now() - timedelta(days=7)
+        
+        if request.user.is_authenticated:
+            recent_notifications = Notification.objects.filter(
+                models.Q(user=request.user) | models.Q(user__isnull=True),
+                created_at__gte=time_threshold,
+                is_read=False
+            ).select_related('category').order_by('-created_at')[:20]
+        else:
+            recent_notifications = Notification.objects.filter(
+                user__isnull=True,
+                created_at__gte=time_threshold,
+                is_read=False
+            ).select_related('category').order_by('-created_at')[:20]
+        
+        # Get total count
+        total_count = recent_notifications.count()
+        
+        # Format notifications for the dropdown
+        notifications_data = []
+        for notification in recent_notifications:
+            # Extract a title and details from the notification data
+            data = notification.data
+            title = notification.category.name
+            details = ""
+            
+            # Try to get meaningful title and details from the data
+            if isinstance(data, dict):
+                # Extract title (first meaningful field)
+                title_field = (data.get('Subject') or 
+                              data.get('Code') or 
+                              data.get('Work Title') or 
+                              data.get('Task Title') or 
+                              data.get('Description') or 
+                              data.get('Doc. Title') or
+                              data.get('Product') or
+                              data.get('Name (ID)') or
+                              f"Notification #{notification.id}")
+                
+                # Extract details (second or third meaningful field)
+                detail_fields = []
+                for key in ['Department', 'Section', 'Priority', 'Insert By', 'Inserted By', 'For Date', 'Required Date', 'Create Date']:
+                    if key in data and data[key]:
+                        detail_fields.append(f"{data[key]}")
+                
+                if detail_fields:
+                    details = " • ".join(detail_fields[:2])  # Limit to 2 detail fields
+                
+                title = str(title_field)[:80]  # Limit title length
+            
+            notifications_data.append({
+                'id': notification.id,
+                'category_name': notification.category.name,
+                'title': title,
+                'details': details[:100],  # Limit details length
+                'created_at': notification.created_at.isoformat()
+            })
+        
+        return Response({
+            'total_count': total_count,
+            'recent_notifications': notifications_data
+        })
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+
+@api_view(['POST'])
+@csrf_exempt
+def mark_notification_as_read(request, notification_id):
+    """Mark a specific notification as read"""
+    try:
+        if request.user.is_authenticated:
+            notification = Notification.objects.filter(
+                models.Q(user=request.user) | models.Q(user__isnull=True),
+                id=notification_id
+            ).first()
+        else:
+            notification = Notification.objects.filter(
+                user__isnull=True,
+                id=notification_id
+            ).first()
+        
+        if not notification:
+            return Response({'error': 'Notification not found'}, status=404)
+        
+        notification.is_read = True
+        notification.save()
+        
+        return Response({'message': 'Notification marked as read'})
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
+
+
+@api_view(['POST'])
+@csrf_exempt
+def mark_all_notifications_as_read(request):
+    """Mark all notifications as read for the current user"""
+    try:
+        if request.user.is_authenticated:
+            # Mark all unread notifications for this user
+            Notification.objects.filter(
+                models.Q(user=request.user) | models.Q(user__isnull=True),
+                is_read=False
+            ).update(is_read=True)
+        else:
+            # Mark all unread global notifications
+            Notification.objects.filter(
+                user__isnull=True,
+                is_read=False
+            ).update(is_read=True)
+        
+        return Response({'message': 'All notifications marked as read'})
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
 
 
 # ============ AUTHENTICATION VIEWS ============

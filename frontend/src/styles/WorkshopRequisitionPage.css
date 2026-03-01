@@ -1,0 +1,191 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap');
+
+.workshop-req-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.req-navbar .gear-icon {
+  background-color: #f0a500;
+}
+
+.top-form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.notice-section {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.bengali-link {
+  color: #2e6da4;
+  text-decoration: underline;
+  font-weight: 600;
+  font-family: 'Noto Sans Bengali', sans-serif;
+  font-size: 1rem;
+}
+
+.bengali-instruction {
+  color: #2e6da4;
+  font-family: 'Noto Sans Bengali', sans-serif;
+  margin-top: 0.75rem;
+  line-height: 1.6;
+}
+
+.bengali-instruction strong {
+  font-weight: 700;
+}
+
+.items-table-container {
+  margin: 2rem 0;
+  overflow-x: auto;
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #ddd;
+}
+
+.items-table thead {
+  background-color: #f5f5f5;
+}
+
+.items-table th {
+  padding: 0.5rem;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid #ddd;
+  color: #2c3e50;
+}
+
+.dimensions-header {
+  color: #ff6b35;
+}
+
+.header-row-2 th {
+  font-size: 0.8rem;
+}
+
+.items-table td {
+  padding: 0.4rem;
+  border: 1px solid #ddd;
+}
+
+.items-table input,
+.items-table select {
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  height: 32px;
+}
+
+.delete-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
+
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.add-more-btn {
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.add-more-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.total-count {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #2c3e50;
+}
+
+.data-table-section {
+  margin-top: 2rem;
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead tr {
+  background-color: #f5f5f5;
+  border-bottom: 2px solid #ddd;
+}
+
+.data-table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.data-table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.data-table tbody tr.highlighted {
+  background-color: #d6eaf8;
+}
+
+.data-table td {
+  padding: 0.75rem;
+  color: #2c3e50;
+}
+
+.details-arrow {
+  color: #2ecc71;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  .top-form {
+    grid-template-columns: 1fr;
+  }
+
+  .req-content {
+    flex-direction: column;
+  }
+}

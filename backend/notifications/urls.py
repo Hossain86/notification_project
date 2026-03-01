@@ -10,6 +10,9 @@ urlpatterns = [
     
     # Notification endpoints
     path('categories/', views.get_categories, name='get_categories'),
+    path('notifications/summary/', views.get_notification_summary, name='get_notification_summary'),
+    path('notifications/mark-all-read/', views.mark_all_notifications_as_read, name='mark_all_notifications_as_read'),
+    path('notifications/<int:notification_id>/mark-read/', views.mark_notification_as_read, name='mark_notification_as_read'),
     path('notifications/<str:category_name>/', views.get_notifications, name='get_notifications'),
     
     # User profile endpoints

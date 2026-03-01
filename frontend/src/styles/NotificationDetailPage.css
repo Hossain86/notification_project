@@ -5,14 +5,14 @@
 
 .content-split {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
   padding: 2rem;
   max-width: 1800px;
   margin: 0 auto;
 }
 
 .panel-section {
-  flex: 0 0 350px;
+  flex: 0 0 320px;
 }
 
 .table-section {
