@@ -9,8 +9,69 @@ interface NotificationTableProps {
   loading: boolean;
 }
 
+type SortOrder = 'asc' | 'desc';
+
 export const NotificationTable = ({ categoryName, columns, notifications, loading }: NotificationTableProps) => {
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+  const [sortField, setSortField] = useState<string>('');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+
+  // Handle column sorting
+  const handleSort = (column: string) => {
+    // Don't sort the Details column
+    if (column === 'Details') return;
+
+    if (sortField === column) {
+      // Toggle order if clicking the same field
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new field and default to ascending
+      setSortField(column);
+      setSortOrder('asc');
+    }
+  };
+
+  // Sort notifications
+  const sortedNotifications = [...notifications].sort((a, b) => {
+    if (!sortField) return 0;
+
+    let compareValue = 0;
+    
+    // Get values from notification data
+    const aValue = a.data[sortField];
+    const bValue = b.data[sortField];
+
+    // Handle null/undefined values
+    if (aValue === null || aValue === undefined) return 1;
+    if (bValue === null || bValue === undefined) return -1;
+
+    // Check if values are numbers
+    const aNum = Number(aValue);
+    const bNum = Number(bValue);
+    
+    if (!isNaN(aNum) && !isNaN(bNum)) {
+      // Numeric comparison
+      compareValue = aNum - bNum;
+    } else {
+      // String comparison
+      const aStr = String(aValue).toLowerCase();
+      const bStr = String(bValue).toLowerCase();
+      
+      // Check if strings are dates
+      const aDate = new Date(aStr);
+      const bDate = new Date(bStr);
+      
+      if (!isNaN(aDate.getTime()) && !isNaN(bDate.getTime())) {
+        // Date comparison
+        compareValue = aDate.getTime() - bDate.getTime();
+      } else {
+        // Regular string comparison
+        compareValue = aStr.localeCompare(bStr);
+      }
+    }
+    
+    return sortOrder === 'asc' ? compareValue : -compareValue;
+  });
 
   if (loading) {
     return <div className="table-loading">Loading notifications...</div>;
@@ -36,12 +97,21 @@ export const NotificationTable = ({ categoryName, columns, notifications, loadin
           <thead>
             <tr>
               {columns.map((column) => (
-                <th key={column}>{column}</th>
+                <th 
+                  key={column}
+                  onClick={() => handleSort(column)}
+                  className={column !== 'Details' ? 'sortable' : ''}
+                >
+                  {column}
+                  {sortField === column && column !== 'Details' && (
+                    <span className="sort-indicator">{sortOrder === 'asc' ? ' ▲' : ' ▼'}</span>
+                  )}
+                </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {notifications.map((notification) => (
+            {sortedNotifications.map((notification) => (
               <tr key={notification.id} className={notification.is_read ? 'read' : 'unread'}>
                 {columns.map((column) => (
                   <td key={column}>

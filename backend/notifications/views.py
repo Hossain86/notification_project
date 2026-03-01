@@ -75,7 +75,24 @@ def get_categories(request):
         )
     else:
         categories = NotificationCategory.objects.filter(user__isnull=True)
+    
+    # Get sorting parameters
+    sort_by = request.GET.get('sort_by', 'id')  # Default sort by id
+    sort_order = request.GET.get('sort_order', 'asc')  # Default ascending
+    
+    # Apply sorting
+    if sort_by in ['id', 'name']:
+        order_prefix = '-' if sort_order == 'desc' else ''
+        categories = categories.order_by(f'{order_prefix}{sort_by}')
+    
     serializer = CategorySerializer(categories, many=True, context={'request': request})
+    
+    # If sorting by pending count, sort in Python since it's a computed field
+    if sort_by == 'pending':
+        data = serializer.data
+        data = sorted(data, key=lambda x: x['pending'], reverse=(sort_order == 'desc'))
+        return Response(data)
+    
     return Response(serializer.data)
 
 
@@ -103,15 +120,45 @@ def get_notifications(request, category_name):
             )
         else:
             notifications = Notification.objects.filter(category=category, user__isnull=True)
+        
+        # Get sorting parameters
+        sort_by = request.GET.get('sort_by', '')
+        sort_order = request.GET.get('sort_order', 'asc')
+        
         serializer = NotificationSerializer(notifications, many=True)
         
         # Get column definitions for this category
         columns = COLUMN_DEFINITIONS.get(category_name, [])
         
+        # Apply sorting if sort_by is specified and valid
+        notifications_data = serializer.data
+        if sort_by and sort_by != 'Details':
+            def get_sort_value(notification):
+                value = notification['data'].get(sort_by)
+                if value is None:
+                    return ''
+                # Try to convert to number if possible
+                try:
+                    return float(value)
+                except (ValueError, TypeError):
+                    # Try to parse as date
+                    try:
+                        from datetime import datetime
+                        return datetime.fromisoformat(str(value).replace('Z', '+00:00'))
+                    except:
+                        # Return as string
+                        return str(value).lower()
+            
+            notifications_data = sorted(
+                notifications_data,
+                key=get_sort_value,
+                reverse=(sort_order == 'desc')
+            )
+        
         return Response({
             'category': category_name,
             'columns': columns,
-            'notifications': serializer.data
+            'notifications': notifications_data
         })
     except Exception as e:
         return Response({'error': str(e)}, status=404)

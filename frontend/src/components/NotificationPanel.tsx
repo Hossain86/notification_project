@@ -8,15 +8,51 @@ interface NotificationPanelProps {
   loading: boolean;
 }
 
+type SortField = 'id' | 'name' | 'pending';
+type SortOrder = 'asc' | 'desc';
+
 export const NotificationPanel = ({ categories, loading }: NotificationPanelProps) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [sortField, setSortField] = useState<SortField>('id');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+
+  // Handle column sorting
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      // Toggle order if clicking the same field
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new field and default to ascending
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
 
   // Filter categories based on search term
   const filteredCategories = categories.filter(category =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Sort categories
+  const sortedCategories = [...filteredCategories].sort((a, b) => {
+    let compareValue = 0;
+    
+    switch (sortField) {
+      case 'id':
+        compareValue = a.id - b.id;
+        break;
+      case 'name':
+        compareValue = a.name.localeCompare(b.name);
+        break;
+      case 'pending':
+        compareValue = a.pending - b.pending;
+        break;
+    }
+    
+    return sortOrder === 'asc' ? compareValue : -compareValue;
+  });
 
   // Get suggestions (limit to top 5)
   const suggestions = searchTerm.trim() ? filteredCategories.slice(0, 5) : [];
@@ -83,13 +119,23 @@ export const NotificationPanel = ({ categories, loading }: NotificationPanelProp
       <table className="panel-table">
         <thead>
           <tr>
-            <th>Software Name</th>
-            <th>Pending</th>
+            <th onClick={() => handleSort('name')} className="sortable">
+              Software Name
+              {sortField === 'name' && (
+                <span className="sort-indicator">{sortOrder === 'asc' ? ' ▲' : ' ▼'}</span>
+              )}
+            </th>
+            <th onClick={() => handleSort('pending')} className="sortable">
+              Pending
+              {sortField === 'pending' && (
+                <span className="sort-indicator">{sortOrder === 'asc' ? ' ▲' : ' ▼'}</span>
+              )}
+            </th>
           </tr>
         </thead>
         <tbody>
-          {filteredCategories.length > 0 ? (
-            filteredCategories.map((category) => (
+          {sortedCategories.length > 0 ? (
+            sortedCategories.map((category) => (
               <tr
                 key={category.id}
                 onClick={() => navigate(`/notifications/${encodeURIComponent(category.name)}`)}
