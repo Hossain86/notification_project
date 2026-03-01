@@ -7,7 +7,7 @@ export const NavigationMenu = () => {
 
   const menuItems = [
     { name: 'Notification', path: '/' },
-    { name: 'Public Requisition', path: '/public-requisition' },
+    { name: 'Public Requisition', path: '/' },
     { name: 'Global Approval', path: '/global-approval' },
     { name: 'Gift Management', path: '/gift-management' },
     { name: 'Carpenter System', path: '/carpenter-system' },
